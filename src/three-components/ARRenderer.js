@@ -1,4 +1,13 @@
-import {Matrix4, Object3D, PerspectiveCamera, Raycaster, Scene, Vector3, WebGLRenderer} from 'three';
+// import {Matrix4, Object3D, PerspectiveCamera, Raycaster, Scene, Vector3,
+// WebGLRenderer} from 'three';
+
+import {PerspectiveCamera} from 'three/src/cameras/PerspectiveCamera.js';
+import {Object3D} from 'three/src/core/Object3D.js';
+import {Raycaster} from 'three/src/core/Raycaster.js';
+import {Matrix4} from 'three/src/math/Matrix4.js';
+import {Vector3} from 'three/src/math/Vector3.js';
+import {WebGLRenderer} from 'three/src/renderers/WebGLRenderer.js';
+import {Scene} from 'three/src/scenes/scene.js';
 
 import {assertIsArCandidate} from '../utils.js';
 

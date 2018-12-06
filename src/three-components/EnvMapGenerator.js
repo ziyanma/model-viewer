@@ -13,7 +13,17 @@
  * limitations under the License.
  */
 
-import {BackSide, CubeCamera, EventDispatcher, Mesh, MeshBasicMaterial, PlaneBufferGeometry, PointLight, Scene, Vector3} from 'three';
+// import {BackSide, CubeCamera, EventDispatcher, Mesh, MeshBasicMaterial,
+// PlaneBufferGeometry, PointLight, Scene, Vector3} from 'three';
+import {CubeCamera} from 'three/src/cameras/CubeCamera.js';
+import {BackSide} from 'three/src/constants.js';
+import {EventDispatcher} from 'three/src/core/EventDispatcher.js';
+import {PlaneBufferGeometry} from 'three/src/geometries/PlaneGeometry.js';
+import {PointLight} from 'three/src/lights/PointLight.js';
+import {MeshBasicMaterial} from 'three/src/materials/MeshBasicMaterial.js';
+import {Vector3} from 'three/src/math/Vector3.js';
+import {Mesh} from 'three/src/objects/Mesh.js';
+import {Scene} from 'three/src/scenes/scene.js';
 
 import Sky from '../third_party/three/Sky.js';
 

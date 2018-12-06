@@ -13,7 +13,21 @@
  * limitations under the License.
  */
 
-import {Color, Mesh, MeshBasicMaterial, MultiplyBlending, OrthographicCamera, PlaneGeometry, RGBAFormat, ShaderMaterial, UniformsUtils, Vector3, WebGLRenderTarget} from 'three';
+// import {Color, Mesh, MeshBasicMaterial, MultiplyBlending, OrthographicCamera,
+// PlaneGeometry, RGBAFormat, ShaderMaterial, UniformsUtils, Vector3,
+// WebGLRenderTarget} from 'three';
+
+import {OrthographicCamera} from 'three/src/cameras/OrthographicCamera.js';
+import {MultiplyBlending, RGBAFormat} from 'three/src/constants.js';
+import {PlaneGeometry} from 'three/src/geometries/PlaneGeometry.js';
+import {MeshBasicMaterial} from 'three/src/materials/MeshBasicMaterial.js';
+import {ShaderMaterial} from 'three/src/materials/ShaderMaterial.js';
+import {Color} from 'three/src/math/Color.js';
+import {Vector3} from 'three/src/math/Vector3.js';
+import {Mesh} from 'three/src/objects/Mesh.js';
+import {UniformsUtils} from 'three/src/renderers/shaders/UniformsUtils.js';
+import {WebGLRenderTarget} from 'three/src/renderers/WebGLRenderTarget.js';
+
 
 const $camera = Symbol('camera');
 const $renderTarget = Symbol('renderTarget');

@@ -13,7 +13,10 @@
  * limitations under the License.
  */
 
-import {Box3, Object3D, Vector3} from 'three';
+// import {Box3, Object3D, Vector3} from 'three';
+import {Object3D} from 'three/src/core/Object3D.js';
+import {Box3} from 'three/src/math/Box3.js';
+import {Vector3} from 'three/src/math/Vector3.js';
 
 import {CachingGLTFLoader} from './CachingGLTFLoader.js';
 

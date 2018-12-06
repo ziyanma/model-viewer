@@ -13,7 +13,11 @@
  * limitations under the License.
  */
 
-import {Cache, EventDispatcher, GammaEncoding, TextureLoader} from 'three';
+// import {Cache, EventDispatcher, GammaEncoding, TextureLoader} from 'three';
+import {GammaEncoding} from 'three/src/constants.js';
+import {EventDispatcher} from 'three/src/core/EventDispatcher.js';
+import {Cache} from 'three/src/loaders/Cache.js';
+import {TextureLoader} from 'three/src/loaders/TextureLoader.js';
 
 import EquirectangularToCubeGenerator from '../third_party/three/EquirectangularToCubeGenerator.js';
 

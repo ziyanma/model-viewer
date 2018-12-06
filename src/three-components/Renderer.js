@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-import {EventDispatcher, WebGLRenderer} from 'three';
+// import {EventDispatcher, WebGLRenderer} from 'three';
+import {EventDispatcher} from 'three/src/core/EventDispatcher.js';
+import {WebGLRenderer} from 'three/src/renderers/WebGLRenderer.js';
 
 import {IS_AR_CANDIDATE} from '../constants.js';
 import {$tick} from '../model-viewer-base.js';

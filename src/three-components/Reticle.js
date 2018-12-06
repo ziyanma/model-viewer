@@ -13,7 +13,16 @@
  * limitations under the License.
  */
 
-import {Math as ThreeMath, Matrix4, Mesh, MeshBasicMaterial, Object3D, Raycaster, RingGeometry, Vector3,} from 'three';
+// import {Math as ThreeMath, Matrix4, Mesh, MeshBasicMaterial, Object3D,
+// Raycaster, RingGeometry, Vector3,} from 'three';
+import {Object3D} from 'three/src/core/Object3D.js';
+import {Raycaster} from 'three/src/core/Raycaster.js';
+import {RingGeometry} from 'three/src/geometries/RingGeometry.js';
+import {MeshBasicMaterial} from 'three/src/materials/MeshBasicMaterial.js';
+import {_Math as ThreeMath} from 'three/src/math/Math.js';
+import {Matrix4} from 'three/src/math/Matrix4.js';
+import {Vector3} from 'three/src/math/Vector3.js';
+import {Mesh} from 'three/src/objects/Mesh.js';
 
 const matrix4 = new Matrix4();
 const vector3 = new Vector3();

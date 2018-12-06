@@ -13,7 +13,24 @@
  * limitations under the License.
  */
 
-import {AmbientLight, BackSide, Box3, Color, DirectionalLight, Mesh, MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, SphereBufferGeometry, Vector3} from 'three';
+// Before
+// import {AmbientLight, BackSide, Box3, Color, DirectionalLight, Mesh,
+// MeshBasicMaterial, Object3D, PerspectiveCamera, Scene, SphereBufferGeometry,
+// Vector3} from 'three';
+
+// After
+import {PerspectiveCamera} from 'three/src/cameras/PerspectiveCamera.js';
+import {BackSide} from 'three/src/constants.js';
+import {Object3D} from 'three/src/core/Object3D.js';
+import {SphereBufferGeometry} from 'three/src/geometries/SphereGeometry.js';
+import {AmbientLight} from 'three/src/lights/AmbientLight.js';
+import {DirectionalLight} from 'three/src/lights/DirectionalLight.js';
+import {MeshBasicMaterial} from 'three/src/materials/MeshBasicMaterial.js';
+import {Box3} from 'three/src/math/Box3.js';
+import {Color} from 'three/src/math/Color.js';
+import {Vector3} from 'three/src/math/Vector3.js';
+import {Mesh} from 'three/src/objects/Mesh.js';
+import {Scene} from 'three/src/scenes/scene.js';
 
 import Model from './Model.js';
 import StaticShadow from './StaticShadow.js';

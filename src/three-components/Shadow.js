@@ -13,7 +13,11 @@
  * limitations under the License.
  */
 
-import {Mesh, PlaneGeometry, ShadowMaterial,} from 'three';
+// import {Mesh, PlaneGeometry, ShadowMaterial,} from 'three';
+import {PlaneGeometry} from 'three/src/geometries/PlaneGeometry.js';
+import {ShadowMaterial} from 'three/src/materials/ShadowMaterial.js';
+import {Mesh} from 'three/src/objects/Mesh.js';
+
 
 /**
  * Creates a mesh that can receive and render shadows.

@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-import {Vector3} from 'three';
+// import {Vector3} from 'three';
+import {Vector3} from 'three/src/math/Vector3.js';
 
 import {HAS_FULLSCREEN_API, HAS_WEBXR_DEVICE_API, HAS_WEBXR_HIT_TEST_API, IS_AR_CANDIDATE} from './constants.js';
 

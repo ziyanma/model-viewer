@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-import {PerspectiveCamera, Vector3} from 'three';
+// import {PerspectiveCamera, Vector3} from 'three';
+import {PerspectiveCamera} from 'three/src/cameras/PerspectiveCamera.js';
+import {Vector3} from 'three/src/math/Vector3.js';
 
 import {$needsRender, $onModelLoad, $onResize, $scene} from '../model-viewer-base.js';
 import {FRAMED_HEIGHT} from '../three-components/ModelScene.js';
