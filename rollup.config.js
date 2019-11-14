@@ -179,6 +179,13 @@ if (NODE_ENV !== 'development') {
         },
         plugins,
         onwarn,
+      },
+      {
+        input: './lib/tools/hierarchy.js',
+        output:
+            {file: './dist/hierarchy.js', format: 'esm', name: 'HierarchyTool'},
+        plugins,
+        onwarn,
       });
 }
 

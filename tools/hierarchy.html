@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>&lt;model-viewer&gt; Hierarchy Tool</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <script type="module">
+    import {HierarchyTool} from '../dist/hierarchy.js';
+
+    const tool = new HierarchyTool();
+    (async () => {
+      console.log('### TILE');
+      await tool.analyze('../examples/assets/tile.glb');
+      console.log('\n\n### ROBOT');
+      await tool.analyze('../examples/assets/RobotExpressive.glb');
+    })();
+  </script>
+</body>
+</html>

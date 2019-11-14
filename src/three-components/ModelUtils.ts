@@ -21,6 +21,51 @@ import {normalmapChunk} from './shader-chunk/normalmap_pars_fragment.glsl.js';
 // NOTE(cdata): What follows is a TypeScript-ified version of:
 // https://gist.github.com/cdata/f2d7a6ccdec071839bc1954c32595e87
 
+export interface GltfJson {
+  accessors: Array<{
+    componentType: number; type: string; count: number; bufferView: number;
+    byteOffset: number;
+  }>;
+  animations: Array<{
+    name: string;
+    channels: Array<{sampler: number; target: {node: number; path: string;};}>;
+    samplers: Array<{input: number; output: number; interpolation: string;}>;
+  }>;
+  asset?: {generator: string; version: string;};
+  bufferViews: Array<{buffer: number; byteLength: number; byteOffset: number;}>;
+  buffers: Array<{byteLength: number;}>;
+  materials: Array<{
+    name: string; alphaMode: string; pbrMetallicRoughness: {
+      baseColorFactor: [number, number, number, number]; metallicFactor: number;
+      roughnessFactor: number;
+    };
+    extras?: {[index: string]: any};
+  }>;
+  meshReferences: {[index: number]: number};
+  meshUses: {[index: number]: number};
+  meshes: Array<{
+    name: string;
+    primitives: Array<{
+      attributes: {[index: string]: number;}; material: number; indices: number;
+      mode: number;
+    }>;
+  }>;
+  nodes: Array<{
+    name: string;
+    children?: Array<number>; translation: [number, number, number];
+    scale: [number, number, number];
+    rotation: [number, number, number, number];
+    mesh?: number;
+    skin?: number;
+  }>;
+  samplers: Array<any>;
+  scene: number;
+  scenes: Array<{name: string; nodes: Array<number>;}>;
+  skins: Array<
+      {inverseBindMatrices: number; joints: Array<number>; skeleton: number;}>;
+}
+;
+
 export interface Gltf {
   animations: Array<any>;
   scene: Scene|null;

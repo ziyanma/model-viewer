@@ -18,7 +18,7 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import {CacheEvictionPolicy} from '../utilities/cache-eviction-policy.js';
 
-import {cloneGltf, Gltf} from './ModelUtils.js';
+import {cloneGltf, Gltf, GltfJson} from './ModelUtils.js';
 
 export type ProgressCallback = (progress: number) => void;
 
@@ -34,9 +34,11 @@ export const loadWithLoader =
       });
     };
 
+export const $gltf = Symbol('gltf');
 export const $releaseFromCache = Symbol('releaseFromCache');
 export interface CacheRetainedScene extends Scene {
   [$releaseFromCache]: () => void;
+  [$gltf]: GltfJson;
 }
 
 const cache = new Map<string, Promise<Gltf>>();
@@ -161,6 +163,7 @@ export class CachingGLTFLoader {
 
       this[$evictionPolicy].retain(url);
 
+      (model as CacheRetainedScene)[$gltf] = clone.parser.json;
       (model as CacheRetainedScene)[$releaseFromCache] = (() => {
         let released = false;
         return () => {
