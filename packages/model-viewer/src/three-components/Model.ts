@@ -23,6 +23,9 @@ const $cancelPendingSourceChange = Symbol('cancelPendingSourceChange');
 const $currentGLTF = Symbol('currentGLTF');
 
 export const DEFAULT_FOV_DEG = 45;
+const DEFAULT_HALF_FOV = (DEFAULT_FOV_DEG / 2) * Math.PI / 180;
+export const SAFE_RADIUS_RATIO = Math.sin(DEFAULT_HALF_FOV);
+export const DEFAULT_TAN_FOV = Math.tan(DEFAULT_HALF_FOV);
 
 const $loader = Symbol('loader');
 
@@ -43,7 +46,6 @@ export default class Model extends Object3D {
   public animationNames: Array<string> = [];
   public boundingBox = new Box3();
   public size = new Vector3();
-  public framedRadius = 0;
   public idealCameraDistance = 0;
   public fieldOfViewAspect = 0;
   public userData: {url: string|null} = {url: null};
@@ -265,12 +267,10 @@ export default class Model extends Object3D {
     const radiusSquared = (value: number, vertex: Vector3): number => {
       return Math.max(value, center!.distanceToSquared(vertex));
     };
-    this.framedRadius =
+    const framedRadius =
         Math.sqrt(reduceVertices(this.modelContainer, radiusSquared));
 
-    const halfFov = (DEFAULT_FOV_DEG / 2) * Math.PI / 180;
-    this.idealCameraDistance = this.framedRadius / Math.sin(halfFov);
-    const verticalFov = Math.tan(halfFov);
+    this.idealCameraDistance = framedRadius / SAFE_RADIUS_RATIO;
 
     const horizontalFov = (value: number, vertex: Vector3): number => {
       vertex.sub(center!);
@@ -279,7 +279,7 @@ export default class Model extends Object3D {
           value, radiusXZ / (this.idealCameraDistance - Math.abs(vertex.y)));
     };
     this.fieldOfViewAspect =
-        reduceVertices(this.modelContainer, horizontalFov) / verticalFov;
+        reduceVertices(this.modelContainer, horizontalFov) / DEFAULT_TAN_FOV;
 
     this.add(this.modelContainer);
   }
