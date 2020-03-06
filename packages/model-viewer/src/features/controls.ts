@@ -129,13 +129,17 @@ export const cameraOrbitIntrinsics = (() => {
   };
 })();
 
-const minCameraOrbitIntrinsics = {
-  basis: [
-    numberNode(-Infinity, 'rad'),
-    numberNode(Math.PI / 8, 'rad'),
-    numberNode(0, 'm')
-  ],
-  keywords: {auto: [null, null, null]}
+const minCameraOrbitIntrinsics = (element: ModelViewerElementBase) => {
+  const radius = element[$scene].model.framedRadius;
+
+  return {
+    basis: [
+      numberNode(-Infinity, 'rad'),
+      numberNode(Math.PI / 8, 'rad'),
+      numberNode(radius, 'm')
+    ],
+    keywords: {auto: [null, null, null]}
+  };
 };
 
 const maxCameraOrbitIntrinsics = {
@@ -175,7 +179,6 @@ export const INTERACTION_PROMPT =
 export const $controls = Symbol('controls');
 export const $promptElement = Symbol('promptElement');
 export const $promptAnimatedContainer = Symbol('promptAnimatedContainer');
-export const $idealCameraDistance = Symbol('idealCameraDistance');
 
 const $deferInteractionPrompt = Symbol('deferInteractionPrompt');
 const $updateAria = Symbol('updateAria');

@@ -43,6 +43,7 @@ export default class Model extends Object3D {
   public animationNames: Array<string> = [];
   public boundingBox = new Box3();
   public size = new Vector3();
+  public framedRadius = 0;
   public idealCameraDistance = 0;
   public fieldOfViewAspect = 0;
   public userData: {url: string|null} = {url: null};
@@ -264,11 +265,11 @@ export default class Model extends Object3D {
     const radiusSquared = (value: number, vertex: Vector3): number => {
       return Math.max(value, center!.distanceToSquared(vertex));
     };
-    const framedRadius =
+    this.framedRadius =
         Math.sqrt(reduceVertices(this.modelContainer, radiusSquared));
 
     const halfFov = (DEFAULT_FOV_DEG / 2) * Math.PI / 180;
-    this.idealCameraDistance = framedRadius / Math.sin(halfFov);
+    this.idealCameraDistance = this.framedRadius / Math.sin(halfFov);
     const verticalFov = Math.tan(halfFov);
 
     const horizontalFov = (value: number, vertex: Vector3): number => {

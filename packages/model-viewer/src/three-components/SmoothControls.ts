@@ -63,8 +63,12 @@ export const DEFAULT_OPTIONS = Object.freeze<SmoothControlsOptions>({
 const $velocity = Symbol('velocity');
 
 // Internal orbital position state
-const $spherical = Symbol('spherical');
-const $goalSpherical = Symbol('goalSpherical');
+const $phi = Symbol('phi');
+const $goalPhi = Symbol('goalPhi');
+const $theta = Symbol('theta');
+const $goalTheta = Symbol('goalTheta');
+const $logRadius = Symbol('logRadius');
+const $goalLogRadius = Symbol('goalLogRadius');
 const $thetaDamper = Symbol('thetaDamper');
 const $phiDamper = Symbol('phiDamper');
 const $radiusDamper = Symbol('radiusDamper');
@@ -121,6 +125,9 @@ const ZOOM_SENSITIVITY = 0.1;
 const DECAY_MILLISECONDS = 50;
 const NATURAL_FREQUENCY = 1 / DECAY_MILLISECONDS;
 const NIL_SPEED = 0.0002 * NATURAL_FREQUENCY;
+
+const spherical = new Spherical();
+const euler = new Euler();
 
 export const KeyCode = {
   PAGE_UP: 33,
@@ -228,14 +235,22 @@ export class SmoothControls extends EventDispatcher {
   private[$isUserChange] = false;
   private[$isUserPointing] = false;
 
-  private[$spherical] = new Spherical();
-  private[$goalSpherical] = new Spherical();
-  private[$thetaDamper] = new Damper();
+  private[$phi]: number;
+  private[$goalPhi]: number;
   private[$phiDamper] = new Damper();
+
+  private[$theta]: number;
+  private[$goalTheta]: number;
+  private[$thetaDamper] = new Damper();
+
+  private[$logRadius]: number;
+  private[$goalLogRadius]: number;
   private[$radiusDamper] = new Damper();
+
   private[$logFov]: number;
   private[$goalLogFov]: number;
   private[$fovDamper] = new Damper();
+
   private[$target] = new Vector3();
   private[$goalTarget] = new Vector3();
   private[$targetDamperX] = new Damper();
@@ -343,7 +358,7 @@ export class SmoothControls extends EventDispatcher {
    * returned.
    */
   getCameraSpherical(target: Spherical = new Spherical()) {
-    return target.copy(this[$spherical]);
+    return target.set(Math.exp(this[$logRadius]), this[$phi], this[$theta]);
   }
 
   /**
@@ -395,9 +410,8 @@ export class SmoothControls extends EventDispatcher {
    * position and/or rotation, otherwise false.
    */
   setOrbit(
-      goalTheta: number = this[$goalSpherical].theta,
-      goalPhi: number = this[$goalSpherical].phi,
-      goalRadius: number = this[$goalSpherical].radius): boolean {
+      goalTheta: number = this[$goalTheta], goalPhi: number = this[$goalPhi],
+      goalRadius: number = Math.exp(this[$goalLogRadius])): boolean {
     const {
       minimumAzimuthalAngle,
       maximumAzimuthalAngle,
@@ -407,27 +421,24 @@ export class SmoothControls extends EventDispatcher {
       maximumRadius
     } = this[$options];
 
-    const {theta, phi, radius} = this[$goalSpherical];
-
     const nextTheta =
         clamp(goalTheta, minimumAzimuthalAngle!, maximumAzimuthalAngle!);
     if (!isFinite(minimumAzimuthalAngle!) &&
         !isFinite(maximumAzimuthalAngle!)) {
-      this[$spherical].theta =
-          this[$wrapAngle](this[$spherical].theta - nextTheta) + nextTheta;
+      this[$theta] = this[$wrapAngle](this[$theta] - nextTheta) + nextTheta;
     }
 
     const nextPhi = clamp(goalPhi, minimumPolarAngle!, maximumPolarAngle!);
     const nextRadius = clamp(goalRadius, minimumRadius!, maximumRadius!);
 
-    if (nextTheta === theta && nextPhi === phi && nextRadius === radius) {
+    if (nextTheta === this[$goalTheta] && nextPhi === this[$goalPhi] &&
+        nextRadius === this[$goalLogRadius]) {
       return false;
     }
 
-    this[$goalSpherical].theta = nextTheta;
-    this[$goalSpherical].phi = nextPhi;
-    this[$goalSpherical].radius = nextRadius;
-    this[$goalSpherical].makeSafe();
+    this[$goalTheta] = nextTheta;
+    this[$goalPhi] = nextPhi;
+    this[$goalLogRadius] = Math.log(nextRadius);
 
     this[$isUserChange] = false;
 
@@ -438,8 +449,7 @@ export class SmoothControls extends EventDispatcher {
    * Subset of setOrbit() above, which only sets the camera's radius.
    */
   setRadius(radius: number) {
-    this[$goalSpherical].radius = radius;
-    this.setOrbit();
+    this.setOrbit(this[$goalTheta], this[$goalPhi], radius);
   }
 
   /**
@@ -470,16 +480,14 @@ export class SmoothControls extends EventDispatcher {
    * position. Does not let the theta goal get more than pi ahead of the current
    * theta, which ensures interpolation continues in the direction of the delta.
    */
-  adjustOrbit(
-      deltaTheta: number, deltaPhi: number, deltaRadius: number,
-      deltaFov: number): boolean {
-    const {theta, phi, radius} = this[$goalSpherical];
-
-    const dTheta = this[$spherical].theta - theta;
+  adjustOrbit(deltaTheta: number, deltaPhi: number, deltaZoom: number):
+      boolean {
+    const dTheta = this[$theta] - this[$goalTheta];
     const dThetaLimit = Math.PI - 0.001;
-    const goalTheta =
-        theta - clamp(deltaTheta, -dThetaLimit - dTheta, dThetaLimit - dTheta);
-    const goalPhi = phi - deltaPhi;
+    const goalTheta = this[$goalTheta] -
+        clamp(deltaTheta, -dThetaLimit - dTheta, dThetaLimit - dTheta);
+    const goalPhi = this[$goalPhi] - deltaPhi;
+
     const goalRadius = radius + deltaRadius;
     let handled = this.setOrbit(goalTheta, goalPhi, goalRadius);
 
@@ -511,33 +519,26 @@ export class SmoothControls extends EventDispatcher {
     if (this[$isStationary]()) {
       return;
     }
-    const {maximumPolarAngle, maximumRadius, maximumFieldOfView} =
-        this[$options];
+    const {maximumPolarAngle, maximumRadius} = this[$options];
 
-    const dTheta = this[$spherical].theta - this[$goalSpherical].theta;
+    const dTheta = this[$theta] - this[$goalTheta];
     if (Math.abs(dTheta) > Math.PI &&
         !isFinite(this[$options].minimumAzimuthalAngle!) &&
         !isFinite(this[$options].maximumAzimuthalAngle!)) {
-      this[$spherical].theta -= Math.sign(dTheta) * 2 * Math.PI;
+      this[$theta] -= Math.sign(dTheta) * 2 * Math.PI;
     }
 
-    this[$spherical].theta = this[$thetaDamper].update(
-        this[$spherical].theta, this[$goalSpherical].theta, delta, Math.PI);
+    this[$theta] = this[$thetaDamper].update(
+        this[$theta], this[$goalTheta], delta, Math.PI);
 
-    this[$spherical].phi = this[$phiDamper].update(
-        this[$spherical].phi,
-        this[$goalSpherical].phi,
-        delta,
-        maximumPolarAngle!);
+    this[$phi] = this[$phiDamper].update(
+        this[$phi], this[$goalPhi], delta, maximumPolarAngle!);
 
-    this[$spherical].radius = this[$radiusDamper].update(
-        this[$spherical].radius,
-        this[$goalSpherical].radius,
-        delta,
-        maximumRadius!);
+    this[$logRadius] = this[$radiusDamper].update(
+        this[$logRadius], this[$goalLogRadius], delta, 1);
 
-    this[$logFov] = this[$fovDamper].update(
-        this[$logFov], this[$goalLogFov], delta, maximumFieldOfView!);
+    this[$logFov] =
+        this[$fovDamper].update(this[$logFov], this[$goalLogFov], delta, 1);
 
     this[$target].x = this[$targetDamperX].update(
         this[$target].x, this[$goalTarget].x, delta, maximumRadius!);
@@ -550,20 +551,19 @@ export class SmoothControls extends EventDispatcher {
   }
 
   private[$isStationary](): boolean {
-    return this[$goalSpherical].theta === this[$spherical].theta &&
-        this[$goalSpherical].phi === this[$spherical].phi &&
-        this[$goalSpherical].radius === this[$spherical].radius &&
+    return this[$goalTheta] === this[$theta] && this[$goalPhi] === this[$phi] &&
+        this[$goalLogRadius] === this[$logRadius] &&
         this[$goalLogFov] === this[$logFov] &&
         this[$goalTarget].equals(this[$target]);
   }
 
   private[$moveCamera]() {
     // Derive the new camera position from the updated spherical:
-    this[$spherical].makeSafe();
-    this.camera.position.setFromSpherical(this[$spherical]);
+    this.getCameraSpherical(spherical);
+    this.camera.position.setFromSpherical(spherical);
     this.camera.position.add(this[$target]);
-    this.camera.setRotationFromEuler(new Euler(
-        this[$spherical].phi - Math.PI / 2, this[$spherical].theta, 0, 'YXZ'));
+    this.camera.setRotationFromEuler(
+        euler.set(this[$phi] - Math.PI / 2, this[$theta], 0, 'YXZ'));
 
     if (this.camera.fov !== Math.exp(this[$logFov])) {
       this.camera.fov = Math.exp(this[$logFov]);
