@@ -40,7 +40,6 @@ const $onWebGLContextLost = Symbol('onWebGLContextLost');
 const $webGLContextLostHandler = Symbol('webGLContextLostHandler');
 const $singleton = Symbol('singleton');
 
-const ALPHA = 0.1;
 const RESET_TIME = 64000;
 
 /**
@@ -78,7 +77,6 @@ export class Renderer extends EventDispatcher {
   private[$arRenderer]: ARRenderer;
   private scenes: Set<ModelScene> = new Set();
   private lastTick: number;
-  private smoothDelta = 0;
   private histogram = Array(10).fill(0);
   private numberOfFrames = 0;
 
@@ -101,8 +99,9 @@ export class Renderer extends EventDispatcher {
 
     this.canvasElement = document.createElement('canvas');
 
-    this.canvas3D = false ? this.canvasElement.transferControlToOffscreen() :
-                            this.canvasElement;
+    this.canvas3D = USE_OFFSCREEN_CANVAS ?
+        this.canvasElement.transferControlToOffscreen() :
+        this.canvasElement;
 
     this.canvas3D.addEventListener(
         'webglcontextlost', this[$webGLContextLostHandler] as EventListener);
@@ -255,20 +254,17 @@ export class Renderer extends EventDispatcher {
     const delta = t - this.lastTick;
     const dpr = resolveDpr();
 
-    this.smoothDelta = this.smoothDelta * (1 - ALPHA) + delta * ALPHA;
-    console.log('Smoothed frame time: ' + this.smoothDelta);
-
     ++this.numberOfFrames;
-    if (t % RESET_TIME < 300) {
+    if (t % RESET_TIME < 160) {
       console.log(
           '60 second avg frame time: ' + RESET_TIME / this.numberOfFrames);
+      console.log(this.histogram);
       this.histogram.fill(0);
       this.numberOfFrames = 0;
     }
-    const deltaFrames = Math.max(1, Math.round(60 * delta / 1000));
-    if (deltaFrames <= this.histogram.length) {
-      ++this.histogram[deltaFrames - 1];
-      console.log(this.histogram);
+    const deltaFrames = Math.max(0, Math.floor(60 * delta / 1000));
+    if (deltaFrames < this.histogram.length) {
+      ++this.histogram[deltaFrames];
     }
 
     if (dpr !== this.threeRenderer.getPixelRatio()) {
