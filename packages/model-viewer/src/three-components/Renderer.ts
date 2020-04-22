@@ -40,6 +40,9 @@ const $onWebGLContextLost = Symbol('onWebGLContextLost');
 const $webGLContextLostHandler = Symbol('webGLContextLostHandler');
 const $singleton = Symbol('singleton');
 
+const ALPHA = 0.1;
+const RESET_TIME = 64000;
+
 /**
  * Registers canvases with Canvas2DRenderingContexts and renders them
  * all in the same WebGLRenderingContext, spitting out textures to apply
@@ -75,6 +78,9 @@ export class Renderer extends EventDispatcher {
   private[$arRenderer]: ARRenderer;
   private scenes: Set<ModelScene> = new Set();
   private lastTick: number;
+  private smoothDelta = 0;
+  private histogram = Array(10).fill(0);
+  private numberOfFrames = 0;
 
   private[$webGLContextLostHandler] = (event: WebGLContextEvent) =>
       this[$onWebGLContextLost](event);
@@ -95,9 +101,8 @@ export class Renderer extends EventDispatcher {
 
     this.canvasElement = document.createElement('canvas');
 
-    this.canvas3D = USE_OFFSCREEN_CANVAS ?
-        this.canvasElement.transferControlToOffscreen() :
-        this.canvasElement;
+    this.canvas3D = false ? this.canvasElement.transferControlToOffscreen() :
+                            this.canvasElement;
 
     this.canvas3D.addEventListener(
         'webglcontextlost', this[$webGLContextLostHandler] as EventListener);
@@ -241,13 +246,30 @@ export class Renderer extends EventDispatcher {
     }
   }
 
-  render(t: number) {
+  render(_t: number) {
     if (!this.canRender || this.isPresenting) {
       return;
     }
 
+    const t = performance.now();
     const delta = t - this.lastTick;
     const dpr = resolveDpr();
+
+    this.smoothDelta = this.smoothDelta * (1 - ALPHA) + delta * ALPHA;
+    console.log('Smoothed frame time: ' + this.smoothDelta);
+
+    ++this.numberOfFrames;
+    if (t % RESET_TIME < 300) {
+      console.log(
+          '60 second avg frame time: ' + RESET_TIME / this.numberOfFrames);
+      this.histogram.fill(0);
+      this.numberOfFrames = 0;
+    }
+    const deltaFrames = Math.max(1, Math.round(60 * delta / 1000));
+    if (deltaFrames <= this.histogram.length) {
+      ++this.histogram[deltaFrames - 1];
+      console.log(this.histogram);
+    }
 
     if (dpr !== this.threeRenderer.getPixelRatio()) {
       this.threeRenderer.setPixelRatio(dpr);
