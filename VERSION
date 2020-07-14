@@ -1,0 +1,9 @@
+commit 07bd0edceff1f61f22fa3b0c1db3aae809392fb8
+Author: Steven An <1388372+stevesan@users.noreply.github.com>
+Date:   Tue Jul 14 12:08:28 2020 -0400
+
+    Update from source: Drag drop HDR files; some CSS fixes (#1356)
+    
+    * Update from source: Drag drop HDR files; some CSS fixes
+    
+    * Prompt for HDR drag drop
